@@ -10,7 +10,7 @@
  * OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package ai.djl.examples;
+package ai.djl.code;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
@@ -35,12 +35,11 @@ public class PndmScheduler {
 
     public PndmScheduler(NDManager manager) {
         this.manager = manager;
-        NDArray betas =
-                manager.linspace(
-                                (float) Math.sqrt(BETA_START),
-                                (float) Math.sqrt(BETA_END),
-                                TRAIN_TIMESTEPS)
-                        .square();
+        NDArray betas = manager.linspace(
+                (float) Math.sqrt(BETA_START),
+                (float) Math.sqrt(BETA_END),
+                TRAIN_TIMESTEPS)
+                .square();
         NDArray alphas = manager.ones(betas.getShape()).sub(betas);
         alphasCumProd = alphas.cumProd(0);
         finalAlphaCumProd = alphasCumProd.get(0).toFloatArray()[0];
@@ -135,9 +134,8 @@ public class PndmScheduler {
         float betaProdTPrev = 1 - alphaProdTPrev;
 
         float sampleCoeff = (float) Math.sqrt(alphaProdTPrev / alphaProdT);
-        float modelOutputCoeff =
-                alphaProdT * (float) Math.sqrt(betaProdTPrev)
-                        + (float) Math.sqrt(alphaProdT * betaProdT * alphaProdTPrev);
+        float modelOutputCoeff = alphaProdT * (float) Math.sqrt(betaProdTPrev)
+                + (float) Math.sqrt(alphaProdT * betaProdT * alphaProdTPrev);
 
         sample = sample.mul(sampleCoeff);
         modelOutput = modelOutput.mul(alphaProdTPrev - alphaProdT).div(modelOutputCoeff).neg();
